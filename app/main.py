@@ -77,6 +77,23 @@ def decode_i16(regs: List[int], offset: int) -> int:
     return value - 65536 if value > 32767 else value
 
 
+def decode_string(regs: List[int], offset: int, length: int) -> str:
+    if length <= 0:
+        return ""
+    reg_count = (length + 1) // 2
+    if offset < 0 or offset + reg_count > len(regs):
+        raise IndexError(f"String at offset {offset} length {length} out of range")
+
+    raw = bytearray()
+    for i in range(reg_count):
+        reg = int(regs[offset + i])
+        raw.append((reg >> 8) & 0xFF)
+        raw.append(reg & 0xFF)
+
+    decoded = bytes(raw[:length]).decode("ascii", errors="ignore")
+    return decoded.rstrip("\x00 ").strip()
+
+
 class KostalBridge:
     def __init__(self) -> None:
         self.modbus_primary = os.getenv("MODBUS_HOST", "kostal-wr.home")
@@ -254,24 +271,6 @@ class KostalBridge:
         self.models = models
         self.logger.info("Discovered %d SunSpec models", len(models))
 
-    def _decode_model_generic(self, model_id: int, regs: List[int]) -> List[DecodedPoint]:
-        points: List[DecodedPoint] = []
-        for i, reg in enumerate(regs):
-            points.append(DecodedPoint(model=model_id, point=f"r{i}_u16", value=int(reg)))
-
-        for i in range(0, len(regs) - 1, 2):
-            raw_u32 = cdab_u32(regs[i], regs[i + 1])
-            points.append(DecodedPoint(model=model_id, point=f"r{i}_u32_cdab", value=int(raw_u32)))
-
-            signed = struct.unpack(">i", raw_u32.to_bytes(4, byteorder="big", signed=False))[0]
-            points.append(DecodedPoint(model=model_id, point=f"r{i}_i32_cdab", value=int(signed)))
-
-            float_value = struct.unpack(">f", raw_u32.to_bytes(4, byteorder="big", signed=False))[0]
-            if math.isfinite(float_value):
-                points.append(DecodedPoint(model=model_id, point=f"r{i}_f32_cdab", value=float(float_value)))
-
-        return points
-
     def _decode_model_configured(self, model_id: int, regs: List[int]) -> List[DecodedPoint]:
         model_cfg = self.config.get("models", {}).get(str(model_id), {})
         configured_points = model_cfg.get("points", [])
@@ -293,7 +292,12 @@ class KostalBridge:
                 continue
 
             try:
-                value = decode_typed(regs=regs, offset=int(offset), dtype=str(dtype))
+                dtype_value = str(dtype)
+                if dtype_value == "string":
+                    text_len = int(item.get("length", 0))
+                    value = decode_string(regs=regs, offset=int(offset), length=text_len)
+                else:
+                    value = decode_typed(regs=regs, offset=int(offset), dtype=dtype_value)
 
                 if scale_from is not None and isinstance(value, (int, float)):
                     sf = decode_i16(regs, int(scale_from))
@@ -317,7 +321,6 @@ class KostalBridge:
         all_points: List[DecodedPoint] = []
         for model_id, data_address, model_len in self.models:
             regs = self._read_holding(data_address, model_len)
-            all_points.extend(self._decode_model_generic(model_id, regs))
             all_points.extend(self._decode_model_configured(model_id, regs))
 
         return all_points

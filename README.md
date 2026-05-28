@@ -104,8 +104,9 @@ docker compose down -v
 
 Hinweis:
 
-- Aktuell ist bereits ein semantisches deutsches PV-Mapping für SunSpec `Model 103` enthalten (z. B. `ac_wirkleistung_gesamt_w`, `netzfrequenz_hz`, `dc_leistung_gesamt_w`).
-- Zusätzlich werden weiterhin generische Punkte exportiert (`r<offset>_u16`, `r<offset>_u32_cdab`, `r<offset>_i32_cdab`, `r<offset>_f32_cdab`).
+- Das Mapping wird aus `config/registers.yml` gelesen.
+- Es werden nur konfigurierte Punkte exportiert (keine generischen `r<offset>_*` Werte).
+- Das aktuelle Mapping basiert auf `research_kostal-modbus-sunspec.md`.
 
 ## Vorschläge für weiteres Mapping
 
@@ -115,4 +116,4 @@ Priorität für den nächsten Ausbau:
 2. `m160`: PV-String/Tracker-Werte als `pv_string_1_spannung_v`, `pv_string_1_strom_a`, `pv_string_1_leistung_w` usw.
 3. `m123` / `m113`: Betriebszustände und Fehlercodes in deutsche Klartext-Statusfelder (inkl. Enum-Mapping)
 4. Status-Topics zusätzlich als menschenlesbare Texte, z. B. `betriebszustand_text`
-5. Optionaler Schalter, um generische `r<offset>_*` Punkte auszublenden und nur semantische Topics zu senden
+5. Semantische Felder mit plausiblen Skalierungs-/Typchecks absichern (Quality Gates)

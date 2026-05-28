@@ -23,6 +23,7 @@ Leitfaden für künftige Erweiterungen dieses Projekts.
 - Fehler robust behandeln (Retry, Reconnect, keine Endlosschleifen mit hohem Log-Spam).
 - Topic- und Feldnamen stabil halten; Breaking Changes nur mit klarer Migrationsnotiz.
 - Semantische Namen bevorzugt in gut lesbarem Deutsch als `snake_case` mit Einheitssuffix, z. B. `ac_wirkleistung_gesamt_w`.
+- Exportpolicy: Nur in `config/registers.yml` definierte Punkte werden publiziert/gespeichert.
 
 ## SunSpec/Decoding-Regeln
 
