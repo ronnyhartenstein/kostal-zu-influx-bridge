@@ -1,0 +1,151 @@
+# Semantisches Mapping für PV-relevante Daten.
+# Fokus: SunSpec Modell 103 (Dreiphasen-Wechselrichterwerte).
+# scale_from referenziert den SunSpec-Scale-Factor-Registeroffset innerhalb des Modells.
+
+models:
+  "103":
+    points:
+      - name: ac_strom_gesamt_a
+        offset: 0
+        type: i16
+        scale_from: 4
+        unit: A
+
+      - name: ac_strom_l1_a
+        offset: 1
+        type: i16
+        scale_from: 4
+        unit: A
+
+      - name: ac_strom_l2_a
+        offset: 2
+        type: i16
+        scale_from: 4
+        unit: A
+
+      - name: ac_strom_l3_a
+        offset: 3
+        type: i16
+        scale_from: 4
+        unit: A
+
+      - name: ac_spannung_l1_l2_v
+        offset: 5
+        type: u16
+        scale_from: 11
+        unit: V
+
+      - name: ac_spannung_l2_l3_v
+        offset: 6
+        type: u16
+        scale_from: 11
+        unit: V
+
+      - name: ac_spannung_l3_l1_v
+        offset: 7
+        type: u16
+        scale_from: 11
+        unit: V
+
+      - name: ac_spannung_l1_n_v
+        offset: 8
+        type: u16
+        scale_from: 11
+        unit: V
+
+      - name: ac_spannung_l2_n_v
+        offset: 9
+        type: u16
+        scale_from: 11
+        unit: V
+
+      - name: ac_spannung_l3_n_v
+        offset: 10
+        type: u16
+        scale_from: 11
+        unit: V
+
+      - name: ac_wirkleistung_gesamt_w
+        offset: 12
+        type: i16
+        scale_from: 13
+        unit: W
+
+      - name: netzfrequenz_hz
+        offset: 14
+        type: u16
+        scale_from: 15
+        unit: Hz
+
+      - name: ac_scheinleistung_va
+        offset: 16
+        type: i16
+        scale_from: 17
+        unit: VA
+
+      - name: ac_blindleistung_var
+        offset: 18
+        type: i16
+        scale_from: 19
+        unit: var
+
+      - name: leistungsfaktor
+        offset: 20
+        type: i16
+        scale_from: 21
+
+      - name: energie_gesamt_wh
+        offset: 22
+        type: u32_cdab
+        scale_from: 24
+        unit: Wh
+
+      - name: dc_strom_gesamt_a
+        offset: 26
+        type: i16
+        scale_from: 27
+        unit: A
+
+      - name: dc_spannung_gesamt_v
+        offset: 28
+        type: u16
+        scale_from: 29
+        unit: V
+
+      - name: dc_leistung_gesamt_w
+        offset: 30
+        type: i16
+        scale_from: 31
+        unit: W
+
+      - name: temperatur_wechselrichter_c
+        offset: 32
+        type: i16
+        scale_from: 33
+        unit: C
+
+      - name: temperatur_kuehlkoerper_c
+        offset: 34
+        type: i16
+        scale_from: 35
+        unit: C
+
+      - name: betriebszustand_code
+        offset: 36
+        type: u16
+
+      - name: ereignis_flags_1
+        offset: 38
+        type: u32_cdab
+
+      - name: ereignis_flags_2
+        offset: 40
+        type: u32_cdab
+
+      - name: ereignis_flags_3
+        offset: 42
+        type: u32_cdab
+
+      - name: ereignis_flags_4
+        offset: 44
+        type: u32_cdab

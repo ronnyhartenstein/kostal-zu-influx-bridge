@@ -1,0 +1,63 @@
+services:
+  influxdb:
+    image: influxdb:1.8
+    container_name: kostal-influxdb
+    restart: unless-stopped
+    environment:
+      INFLUXDB_DB: ${INFLUX_DB}
+      INFLUXDB_HTTP_AUTH_ENABLED: "true"
+      INFLUXDB_ADMIN_USER: ${INFLUX_USER}
+      INFLUXDB_ADMIN_PASSWORD: ${INFLUX_PASS}
+      INFLUXDB_USER: ${INFLUX_USER}
+      INFLUXDB_USER_PASSWORD: ${INFLUX_PASS}
+    ports:
+      - "${INFLUX_PORT:-8086}:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+    healthcheck:
+      test: ["CMD-SHELL", "influx -host 127.0.0.1 -port 8086 -username $$INFLUXDB_ADMIN_USER -password $$INFLUXDB_ADMIN_PASSWORD -execute 'SHOW DATABASES' >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 20s
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: kostal-mosquitto
+    restart: unless-stopped
+    ports:
+      - "${MQTT_PORT:-1883}:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_pub -h 127.0.0.1 -p 1883 -t healthcheck -m ok -q 0 >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 10s
+
+  kostal-bridge:
+    build:
+      context: ./app
+    container_name: kostal-bridge
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      influxdb:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    volumes:
+      - ./config:/config:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,time,sys; p='/tmp/bridge_heartbeat'; sys.exit(0 if os.path.exists(p) and time.time()-os.path.getmtime(p)<60 else 1)"]
+      interval: 20s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
+volumes:
+  influxdb_data:
