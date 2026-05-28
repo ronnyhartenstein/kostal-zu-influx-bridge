@@ -20,6 +20,18 @@ Beispiel:
 
 - `home/kostal/plenticore/m1/r0_u16`
 
+## Gefundene SunSpec-Modelle (Kostal Plenticore)
+
+Im aktuellen Live-Test wurden diese Modelle entdeckt:
+
+- `m1`: Common Model (Geräteinformationen)
+- `m103`: Inverter (3-phasig, AC/DC-Leistungswerte)
+- `m113`: Erweiterte Inverter-Daten (herstellerabhängig)
+- `m120`: Nameplate/Nennwerte
+- `m123`: Status-/Control-naher Inverter-Block
+- `m160`: Erweiterte DC-/PV-Kanalwerte
+- `m802`: Kostal-spezifisches (proprietäres) Modell
+
 ## Schnellstart
 
 1. Konfiguration erzeugen:
@@ -94,3 +106,13 @@ Hinweis:
 
 - Aktuell ist bereits ein semantisches deutsches PV-Mapping für SunSpec `Model 103` enthalten (z. B. `ac_wirkleistung_gesamt_w`, `netzfrequenz_hz`, `dc_leistung_gesamt_w`).
 - Zusätzlich werden weiterhin generische Punkte exportiert (`r<offset>_u16`, `r<offset>_u32_cdab`, `r<offset>_i32_cdab`, `r<offset>_f32_cdab`).
+
+## Vorschläge für weiteres Mapping
+
+Priorität für den nächsten Ausbau:
+
+1. `m802` (Kostal proprietär): Batteriespeicher, Hausverbrauch, Netzbezug, Netzeinspeisung, Tagesertrag
+2. `m160`: PV-String/Tracker-Werte als `pv_string_1_spannung_v`, `pv_string_1_strom_a`, `pv_string_1_leistung_w` usw.
+3. `m123` / `m113`: Betriebszustände und Fehlercodes in deutsche Klartext-Statusfelder (inkl. Enum-Mapping)
+4. Status-Topics zusätzlich als menschenlesbare Texte, z. B. `betriebszustand_text`
+5. Optionaler Schalter, um generische `r<offset>_*` Punkte auszublenden und nur semantische Topics zu senden
