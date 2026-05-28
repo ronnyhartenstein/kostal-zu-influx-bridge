@@ -149,3 +149,72 @@ models:
       - name: ereignis_flags_4
         offset: 44
         type: u32_cdab
+
+  "802":
+    points:
+      # SunSpec 802 ist bei KOSTAL als "Battery Base Model" implementiert.
+      # Da KOSTAL nicht alle Detailfelder öffentlich dokumentiert, sind einige
+      # Namen bewusst als "vermutet" oder "herstellerfeld_*" gekennzeichnet.
+
+      - name: batterie_kapazitaet_ah_vermutet
+        offset: 0
+        type: u16
+        unit: Ah
+
+      - name: batterie_kapazitaet_wh_vermutet
+        offset: 1
+        type: u16
+        unit: Wh
+
+      - name: batterie_ladeleistung_max_w_vermutet
+        offset: 2
+        type: u16
+        unit: W
+
+      - name: batterie_entladeleistung_max_w_vermutet
+        offset: 3
+        type: u16
+        unit: W
+
+      - name: batterie_ladezustand_prozent_vermutet
+        offset: 9
+        type: u16
+        unit: "%"
+
+      - name: batterie_spannung_zehntel_v_vermutet
+        offset: 13
+        type: u16
+        unit: "0.1V"
+
+      - name: batterie_ladezustand_code
+        offset: 18
+        type: u16
+
+      - name: batterie_betriebsmodus_code
+        offset: 20
+        type: u16
+
+      - name: batterie_temperatur_zehntel_c_vermutet
+        offset: 32
+        type: u16
+        unit: "0.1C"
+
+      - name: herstellerfeld_energiezaehler_1_roh
+        offset: 42
+        type: u32_cdab
+
+      - name: herstellerfeld_leistungswert_1_roh
+        offset: 44
+        type: i32_cdab
+
+      - name: herstellerfeld_statuscode_1
+        offset: 45
+        type: u16
+
+      - name: herstellerfeld_statuscode_2
+        offset: 48
+        type: u16
+
+      - name: herstellerfeld_statuscode_3
+        offset: 60
+        type: u16
