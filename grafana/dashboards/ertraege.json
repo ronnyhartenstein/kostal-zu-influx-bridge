@@ -1,0 +1,308 @@
+{
+  "uid": "kostal-ertraege",
+  "title": "Erträge & Details",
+  "tags": ["kostal"],
+  "refresh": "1m",
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Tagesertrag",
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 3 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watth",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "blue" },
+              { "value": 5000, "color": "green" }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'tagesertrag_wh')",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Monatsertrag",
+      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 3 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "kwatth",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "value": null, "color": "blue" }]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") / 1000 FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'monatsertrag_wh')",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Jahresertrag",
+      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 3 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "kwatth",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "value": null, "color": "blue" }]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") / 1000 FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'jahresertrag_wh')",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Gesamtertrag",
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 3 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "kwatth",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "value": null, "color": "blue" }]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") / 1000 FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'gesamtertrag_wh')",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "gauge",
+      "title": "Eigenverbrauchsquote",
+      "gridPos": { "x": 16, "y": 0, "w": 4, "h": 3 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "red" },
+              { "value": 30, "color": "yellow" },
+              { "value": 60, "color": "green" }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'eigenverbrauchsquote_prozent')",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "DC-String Leistung",
+      "gridPos": { "x": 0, "y": 3, "w": 12, "h": 7 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt",
+          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "String 1" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "String 2" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"String 1\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'dc_leistung_string_1_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"String 2\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'dc_leistung_string_2_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "B",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Temperaturen",
+      "gridPos": { "x": 12, "y": 3, "w": 12, "h": 7 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "custom": { "lineWidth": 2 }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Platine" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Batterie" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"Platine\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'platinen_temperatur_c') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"Batterie\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'batterie_temperatur_c') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "B",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Batterie Strom (− Laden / + Entladen)",
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 7 },
+      "options": {
+        "tooltip": { "mode": "single" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "amp",
+          "custom": { "lineWidth": 2, "fillOpacity": 10 },
+          "color": { "mode": "fixed", "fixedColor": "blue" }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"Strom\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'batterie_strom_a') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Tagesertrag Verlauf",
+      "gridPos": { "x": 12, "y": 10, "w": 12, "h": 7 },
+      "options": {
+        "tooltip": { "mode": "single" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watth",
+          "custom": { "lineWidth": 2, "fillOpacity": 15 },
+          "color": { "mode": "fixed", "fixedColor": "green" }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"Tagesertrag\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'tagesertrag_wh') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    }
+  ]
+}

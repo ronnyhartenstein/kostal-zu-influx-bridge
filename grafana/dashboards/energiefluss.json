@@ -1,0 +1,344 @@
+{
+  "uid": "kostal-energiefluss",
+  "title": "Energiefluss",
+  "tags": ["kostal"],
+  "refresh": "10s",
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "PV-Leistung",
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "blue" },
+              { "value": 500, "color": "yellow" },
+              { "value": 2000, "color": "green" }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'dc_leistung_gesamt_w')",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Hausverbrauch",
+      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "blue" },
+              { "value": 500, "color": "orange" },
+              { "value": 2000, "color": "red" }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'hausverbrauch_pv_w')",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'hausverbrauch_batterie_w')",
+          "refId": "B",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'hausverbrauch_netz_w')",
+          "refId": "C",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": { "type": "__expr__", "uid": "__expr__" },
+          "expression": "$A + $B + $C",
+          "hide": false,
+          "refId": "Gesamt",
+          "type": "math"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": { "include": { "names": ["Gesamt"] } }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Netz",
+      "description": "Negativ = Einspeisung, Positiv = Bezug",
+      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 0, "color": "red" }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'netzleistung_gesamt_w')",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "gauge",
+      "title": "Batterie SoC",
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "red" },
+              { "value": 20, "color": "yellow" },
+              { "value": 50, "color": "green" }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value\") FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'batterie_soc_prozent')",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Status",
+      "gridPos": { "x": 16, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "value": null, "color": "blue" }]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT last(\"value_str\") FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'wechselrichter_status')",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "PV & Hausverbrauch",
+      "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt",
+          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "PV-Leistung" },
+            "properties": [
+              { "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } },
+              { "id": "custom.fillOpacity", "value": 20 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Hausverbrauch PV" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Hausverbrauch Batterie" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Hausverbrauch Netz" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"PV-Leistung\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'dc_leistung_gesamt_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"Hausverbrauch PV\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'hausverbrauch_pv_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "B",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"Hausverbrauch Batterie\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'hausverbrauch_batterie_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "C",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        },
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"Hausverbrauch Netz\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'hausverbrauch_netz_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "D",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Netzleistung (− Einspeisung / + Bezug)",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 7 },
+      "options": {
+        "tooltip": { "mode": "single" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt",
+          "custom": { "lineWidth": 2, "fillOpacity": 15 },
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 0, "color": "red" }
+            ]
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "thresholdsStyle": { "mode": "off" }
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"Netz\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'netzleistung_gesamt_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Batterie SoC",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 7 },
+      "options": {
+        "tooltip": { "mode": "single" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "custom": { "lineWidth": 2, "fillOpacity": 20 },
+          "color": { "mode": "fixed", "fixedColor": "blue" }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "kostal-influxdb",
+          "query": "SELECT mean(\"value\") AS \"SoC\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'batterie_soc_prozent') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "refId": "A",
+          "rawQuery": true,
+          "resultFormat": "time_series"
+        }
+      ]
+    }
+  ]
+}
