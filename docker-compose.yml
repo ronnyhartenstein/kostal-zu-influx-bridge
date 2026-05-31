@@ -59,5 +59,22 @@ services:
       retries: 6
       start_period: 30s
 
+  web:
+    build:
+      context: ./web
+    container_name: kostal-web
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    depends_on:
+      influxdb:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    volumes:
+      - ./config:/config:ro
+
 volumes:
   influxdb_data:

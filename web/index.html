@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kostal Plenticore</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #111;
+      color: #ccc;
+      font: 13px/1.5 ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, monospace;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    h1 { font-size: 1em; color: #fff; letter-spacing: 0.04em; }
+
+    #toggle-btn {
+      background: #1c1c1c;
+      color: #888;
+      border: 1px solid #2e2e2e;
+      border-radius: 3px;
+      padding: 3px 10px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.82em;
+    }
+    #toggle-btn:hover { background: #242424; color: #aaa; }
+
+    /* Status */
+    .s-row { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot.ok   { background: #4db84d; }
+    .dot.err  { background: #cc4444; }
+    .dot.warn { background: #c88020; }
+    .dot.unk  { background: #3a3a3a; }
+    .s-label { width: 80px; color: #999; }
+    .s-info  { color: #555; font-size: 0.88em; }
+
+    .sep { border: none; border-top: 1px solid #1e1e1e; margin: 12px 0; }
+    #updated { color: #383838; font-size: 0.78em; margin-bottom: 8px; }
+
+    /* Tree */
+    details { border-left: 2px solid #1e1e1e; margin: 2px 0; }
+    details[open] { border-color: #2a2a2a; }
+    summary {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .arrow {
+      color: #444;
+      font-size: 0.68em;
+      width: 10px;
+      text-align: center;
+      flex-shrink: 0;
+      transition: transform 0.1s;
+    }
+    details[open] .arrow { transform: rotate(90deg); }
+    .m-id   { color: #5fa8c8; font-weight: bold; }
+    .m-desc { color: #484848; }
+
+    .pt {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 1px 6px 1px 18px;
+      gap: 12px;
+    }
+    .pt:hover { background: #161616; }
+    .pt.unmapped { color: #363636; font-style: italic; }
+    .pt-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .pt-val   { text-align: right; white-space: nowrap; flex-shrink: 0; }
+    .pt-unit  { color: #484848; margin-left: 3px; font-size: 0.85em; }
+
+    .err-msg { color: #cc4444; padding: 6px 0; font-size: 0.85em; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kostal Plenticore</h1>
+    <button id="toggle-btn" onclick="toggleView()"></button>
+  </header>
+
+  <div id="status"></div>
+  <hr class="sep">
+  <div id="updated"></div>
+  <div id="values"></div>
+
+  <script>
+    let showAll = localStorage.getItem('kz_showAll') === 'true';
+    let _vals = null;
+
+    const MODEL_DESC = {
+      m1:   'Common',
+      m103: 'AC Wechselrichter (Integer)',
+      m113: 'AC Wechselrichter (Float)',
+      m120: 'Batterie Namensschild',
+      m123: 'Batterie Steuerung',
+      m160: 'DC Strings',
+      m802: 'Kostal proprietär',
+    };
+
+    function updateToggle() {
+      document.getElementById('toggle-btn').textContent = showAll ? 'Nur Gemappte' : 'Alle Register';
+    }
+
+    function toggleView() {
+      showAll = !showAll;
+      localStorage.setItem('kz_showAll', showAll);
+      updateToggle();
+      renderValues(_vals);
+    }
+
+    function fmtVal(v) {
+      if (v === null || v === undefined) return '—';
+      if (typeof v === 'number') {
+        if (!isFinite(v)) return '—';
+        return Number.isInteger(v) ? String(v) : v.toFixed(2);
+      }
+      return String(v);
+    }
+
+    function renderStatus(d) {
+      const bridge = d.bridge;
+      const age = bridge.heartbeat_age_s;
+      let bridgeDot, bridgeInfo;
+      if (bridge.error) {
+        bridgeDot = 'err';
+        bridgeInfo = bridge.error;
+      } else if (age === null) {
+        bridgeDot = 'unk';
+        bridgeInfo = 'Keine Messdaten';
+      } else if (bridge.ok) {
+        bridgeDot = age > 30 ? 'warn' : 'ok';
+        bridgeInfo = `vor ${age} s`;
+      } else {
+        bridgeDot = 'err';
+        bridgeInfo = `vor ${age} s (veraltet)`;
+      }
+
+      document.getElementById('status').innerHTML = [
+        { label: 'InfluxDB', dot: d.influxdb.ok ? 'ok' : 'err',
+          info: d.influxdb.ok ? `${d.influxdb.latency_ms} ms` : 'Fehler' },
+        { label: 'MQTT',     dot: d.mqtt.ok ? 'ok' : 'err',
+          info: d.mqtt.ok ? 'OK' : 'Fehler' },
+        { label: 'Bridge',   dot: bridgeDot, info: bridgeInfo },
+      ].map(r =>
+        `<div class="s-row"><div class="dot ${r.dot}"></div>` +
+        `<span class="s-label">${r.label}</span>` +
+        `<span class="s-info">${r.info}</span></div>`
+      ).join('');
+    }
+
+    function renderValues(data) {
+      if (!data) return;
+      _vals = data;
+
+      const el = document.getElementById('values');
+      const wasOpen = new Set(
+        [...el.querySelectorAll('details[open]')].map(d => d.dataset.model)
+      );
+      const firstRender = el.querySelectorAll('details').length === 0;
+
+      let html = '';
+      for (const [model, points] of Object.entries(data)) {
+        const visible = showAll ? points : points.filter(p => p.mapped);
+        if (visible.length === 0) continue;
+
+        const isOpen = firstRender || wasOpen.has(model);
+        const desc = MODEL_DESC[model] || '';
+        html += `<details data-model="${model}"${isOpen ? ' open' : ''}>`;
+        html += `<summary><span class="arrow">▶</span>` +
+                `<span class="m-id">${model}</span>` +
+                `<span class="m-desc">${desc ? ` — ${desc}` : ''}</span></summary>`;
+
+        for (const pt of visible) {
+          const cls = pt.mapped ? '' : ' unmapped';
+          html +=
+            `<div class="pt${cls}">` +
+            `<span class="pt-name">${pt.name}</span>` +
+            `<span class="pt-val">${fmtVal(pt.value)}<span class="pt-unit">${pt.unit}</span></span>` +
+            `</div>`;
+        }
+        html += '</details>';
+      }
+
+      if (!html) html = '<div class="err-msg">Keine Daten vorhanden</div>';
+      el.innerHTML = html;
+    }
+
+    async function loadAll() {
+      try {
+        const [sr, vr] = await Promise.all([
+          fetch('/api/status'),
+          fetch('/api/values'),
+        ]);
+        renderStatus(await sr.json());
+        const vd = await vr.json();
+        if (vd.error) throw new Error(vd.error);
+        renderValues(vd);
+        document.getElementById('updated').textContent =
+          'Aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
+      } catch (e) {
+        document.getElementById('status').innerHTML =
+          `<div class="err-msg">Fehler: ${e.message}</div>`;
+      }
+    }
+
+    updateToggle();
+    loadAll();
+    setInterval(loadAll, 5000);
+  </script>
+</body>
+</html>
