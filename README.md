@@ -117,3 +117,12 @@ Priorität für den nächsten Ausbau:
 3. `m123` / `m113`: Betriebszustände und Fehlercodes in deutsche Klartext-Statusfelder (inkl. Enum-Mapping)
 4. Status-Topics zusätzlich als menschenlesbare Texte, z. B. `betriebszustand_text`
 5. Semantische Felder mit plausiblen Skalierungs-/Typchecks absichern (Quality Gates)
+
+## TODOs
+
+- [ ] **Energiefluss-Aufschlüsselung in m802 ergänzen:** NodeRED liest über native Register
+  `own_use_from_battery` (Reg 106) und `own_use_from_pv` (Reg 116) als separate Werte.
+  Im aktuellen SunSpec-Mapping fehlen diese — nur `hausverbrauch_gesamt_w` (Summe, Offset 80)
+  ist vorhanden. Die korrekten SunSpec-Offsets für die Aufschlüsselung nach Quelle müssen
+  per Live-Messung oder Kostal-Dokumentation ermittelt und dann als
+  `eigenverbrauch_aus_batterie_w` und `eigenverbrauch_aus_pv_w` in m802 eingetragen werden.

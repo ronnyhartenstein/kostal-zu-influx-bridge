@@ -224,6 +224,10 @@ models:
       - name: batterietyp
         offset: 9
         type: u16
+        enum_map:
+          "0": "Kein Speicher"
+          "2": "Sony"
+          "4": "BYD"
 
       - name: batteriezustand_status
         offset: 10
@@ -420,10 +424,16 @@ models:
       - name: batterie_vorhanden
         offset: 26
         type: u16
+        enum_map:
+          "0": "Nein"
+          "1": "Ja"
 
       - name: smart_energy_meter_vorhanden
         offset: 27
         type: u16
+        enum_map:
+          "0": "Nein"
+          "1": "Ja"
 
       - name: firmware_version_haupt
         offset: 28
@@ -523,6 +533,23 @@ models:
       - name: wechselrichter_status
         offset: 66
         type: u16
+        enum_map:
+          "0": "Aus"
+          "1": "Init"
+          "2": "IsoMess"
+          "3": "NetzPruefung"
+          "4": "Anlauf"
+          "6": "Einspeisung"
+          "7": "Gedrosselt"
+          "8": "ExtAbschaltung"
+          "9": "Update"
+          "10": "Standby"
+          "11": "NetzSync"
+          "12": "NetzVorpruefung"
+          "13": "NetzAbschaltung"
+          "14": "Ueberhitzung"
+          "15": "Shutdown"
+          "16": "DC-Spannungsfehler"
 
       - name: fehlercode
         offset: 67
@@ -572,7 +599,7 @@ models:
         type: i16
         unit: W
 
-      - name: netzbezug_w
+      - name: netzleistung_w
         offset: 81
         type: i16
         unit: W
