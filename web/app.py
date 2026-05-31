@@ -104,6 +104,10 @@ def api_values():
         key = f"m{mid}"
         model_order.append(key)
         mapped_per_model[key] = [p["name"] for p in (mcfg or {}).get("points", [])]
+    flat_regs = cfg.get("flat_registers", [])
+    if flat_regs:
+        model_order.append("flat")
+        mapped_per_model["flat"] = [r["name"] for r in flat_regs if isinstance(r, dict)]
 
     collected: dict = {}
     try:
@@ -157,7 +161,8 @@ def api_config():
         f"m{mid}": [p["name"] for p in (mcfg or {}).get("points", [])]
         for mid, mcfg in cfg.get("models", {}).items()
     }
-    return jsonify({"models": models})
+    flat = [r["name"] for r in cfg.get("flat_registers", []) if isinstance(r, dict)]
+    return jsonify({"models": models, "flat": flat})
 
 
 if __name__ == "__main__":

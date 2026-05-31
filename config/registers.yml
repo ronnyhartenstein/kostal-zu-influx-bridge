@@ -663,3 +663,74 @@ models:
         offset: 94
         type: u16
         unit: W
+
+flat_registers:
+  - name: platinen_temperatur_c
+    address: 98
+    type: f32_cdab
+    unit: "°C"
+
+  - name: energiemanager_status
+    address: 104
+    type: u32_cdab
+    unit: ""
+
+  - name: hausverbrauch_batterie_w
+    address: 106
+    type: f32_cdab
+    unit: W
+
+  - name: hausverbrauch_netz_w
+    address: 108
+    type: f32_cdab
+    unit: W
+
+  - name: hausverbrauch_batterie_gesamt_wh
+    address: 110
+    type: f32_cdab
+    unit: Wh
+
+  - name: hausverbrauch_netz_gesamt_wh
+    address: 112
+    type: f32_cdab
+    unit: Wh
+
+  - name: hausverbrauch_pv_gesamt_wh
+    address: 114
+    type: f32_cdab
+    unit: Wh
+
+  - name: hausverbrauch_pv_w
+    address: 116
+    type: f32_cdab
+    unit: W
+
+  - name: hausverbrauch_gesamt_wh
+    address: 118
+    type: f32_cdab
+    unit: Wh
+
+  - name: ac_wirkleistung_gesamt_w
+    address: 172
+    type: f32_cdab
+    unit: W
+
+  - name: netzleistung_gesamt_w
+    address: 252
+    type: f32_cdab
+    unit: W
+
+  - name: gesamtertrag_wh
+    address: 320
+    type: f32_cdab
+    unit: Wh
+
+  - name: tagesertrag_wh
+    address: 322
+    type: f32_cdab
+    unit: Wh
+
+  - name: batterie_soc_prozent_int
+    address: 514
+    type: u16
+    unit: "%"
