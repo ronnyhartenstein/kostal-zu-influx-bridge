@@ -665,16 +665,60 @@ models:
         unit: W
 
 flat_registers:
+  # --- Gerätestatus & System ---
+  - name: wechselrichter_status
+    address: 56
+    type: u16
+    unit: ""
+    enum_map:
+      "0": "Off"
+      "1": "Init"
+      "2": "IsoMeas"
+      "3": "GridCheck"
+      "4": "StartUp"
+      "6": "FeedIn"
+      "7": "Throttled"
+      "8": "ExtSwitchOff"
+      "9": "Update"
+      "10": "Standby"
+      "11": "GridSync"
+      "12": "GridPreCheck"
+      "13": "GridSwitchOff"
+      "14": "Overheating"
+      "15": "Shutdown"
+      "16": "ImproperDcVoltage"
+
   - name: platinen_temperatur_c
     address: 98
     type: f32_cdab
     unit: "°C"
+
+  - name: dc_leistung_gesamt_w
+    address: 100
+    type: f32_cdab
+    unit: W
 
   - name: energiemanager_status
     address: 104
     type: u32_cdab
     unit: ""
 
+  - name: isolationswiderstand_ohm
+    address: 120
+    type: f32_cdab
+    unit: Ohm
+
+  - name: evu_wirkleistungsbegrenzung_prozent
+    address: 122
+    type: f32_cdab
+    unit: "%"
+
+  - name: betriebszeit_s
+    address: 144
+    type: f32_cdab
+    unit: s
+
+  # --- Hausverbrauch & Bilanzierung ---
   - name: hausverbrauch_batterie_w
     address: 106
     type: f32_cdab
@@ -710,8 +754,191 @@ flat_registers:
     type: f32_cdab
     unit: Wh
 
+  - name: eigenverbrauchsquote_prozent
+    address: 124
+    type: f32_cdab
+    unit: "%"
+
+  # --- AC-Netzparameter ---
+  - name: leistungsfaktor_cos_phi
+    address: 150
+    type: f32_cdab
+    unit: ""
+
+  - name: netzfrequenz_hz
+    address: 152
+    type: f32_cdab
+    unit: Hz
+
+  - name: ac_strom_l1_a
+    address: 154
+    type: f32_cdab
+    unit: A
+
+  - name: ac_wirkleistung_l1_w
+    address: 156
+    type: f32_cdab
+    unit: W
+
+  - name: ac_spannung_l1_v
+    address: 158
+    type: f32_cdab
+    unit: V
+
+  - name: ac_strom_l2_a
+    address: 160
+    type: f32_cdab
+    unit: A
+
+  - name: ac_wirkleistung_l2_w
+    address: 162
+    type: f32_cdab
+    unit: W
+
+  - name: ac_spannung_l2_v
+    address: 164
+    type: f32_cdab
+    unit: V
+
+  - name: ac_strom_l3_a
+    address: 166
+    type: f32_cdab
+    unit: A
+
+  - name: ac_wirkleistung_l3_w
+    address: 168
+    type: f32_cdab
+    unit: W
+
+  - name: ac_spannung_l3_v
+    address: 170
+    type: f32_cdab
+    unit: V
+
   - name: ac_wirkleistung_gesamt_w
     address: 172
+    type: f32_cdab
+    unit: W
+
+  - name: ac_blindleistung_gesamt_var
+    address: 174
+    type: f32_cdab
+    unit: var
+
+  - name: ac_scheinleistung_gesamt_va
+    address: 178
+    type: f32_cdab
+    unit: VA
+
+  # --- Batterie ---
+  - name: batterie_ladestrom_a
+    address: 190
+    type: f32_cdab
+    unit: A
+
+  - name: batterie_zyklen
+    address: 194
+    type: f32_cdab
+    unit: ""
+
+  - name: batterie_strom_a
+    address: 200
+    type: f32_cdab
+    unit: A
+
+  - name: batterie_soc_prozent
+    address: 210
+    type: f32_cdab
+    unit: "%"
+
+  - name: batterie_temperatur_c
+    address: 214
+    type: f32_cdab
+    unit: "°C"
+
+  - name: batterie_spannung_v
+    address: 216
+    type: f32_cdab
+    unit: V
+
+  - name: batterie_bruttokapazitaet_ah
+    address: 512
+    type: u32_cdab
+    unit: Ah
+
+  - name: batterie_soc_prozent_int
+    address: 514
+    type: u16
+    unit: "%"
+
+  - name: batterie_typ
+    address: 588
+    type: u16
+    unit: ""
+
+  - name: batterie_ladeenergie_gesamt_wh
+    address: 1046
+    type: f32_cdab
+    unit: Wh
+
+  - name: batterie_entladeenergie_gesamt_wh
+    address: 1048
+    type: f32_cdab
+    unit: Wh
+
+  - name: batterie_nutzbare_kapazitaet_wh
+    address: 1068
+    type: f32_cdab
+    unit: Wh
+
+  - name: batterie_max_ladeleistung_w
+    address: 1076
+    type: f32_cdab
+    unit: W
+
+  - name: batterie_max_entladeleistung_w
+    address: 1078
+    type: f32_cdab
+    unit: W
+
+  # --- Netzzähler (Powermeter) ---
+  - name: zaehler_cos_phi
+    address: 218
+    type: f32_cdab
+    unit: ""
+
+  - name: zaehler_frequenz_hz
+    address: 220
+    type: f32_cdab
+    unit: Hz
+
+  - name: zaehler_strom_l1_a
+    address: 222
+    type: f32_cdab
+    unit: A
+
+  - name: zaehler_wirkleistung_l1_w
+    address: 224
+    type: f32_cdab
+    unit: W
+
+  - name: zaehler_strom_l2_a
+    address: 232
+    type: f32_cdab
+    unit: A
+
+  - name: zaehler_wirkleistung_l2_w
+    address: 234
+    type: f32_cdab
+    unit: W
+
+  - name: zaehler_strom_l3_a
+    address: 242
+    type: f32_cdab
+    unit: A
+
+  - name: zaehler_wirkleistung_l3_w
+    address: 244
     type: f32_cdab
     unit: W
 
@@ -720,6 +947,68 @@ flat_registers:
     type: f32_cdab
     unit: W
 
+  - name: ac_einspeisung_gesamt_wh
+    address: 1064
+    type: f32_cdab
+    unit: Wh
+
+  # --- DC-Strings ---
+  - name: dc_strom_string_1_a
+    address: 258
+    type: f32_cdab
+    unit: A
+
+  - name: dc_leistung_string_1_w
+    address: 260
+    type: f32_cdab
+    unit: W
+
+  - name: dc_spannung_string_1_v
+    address: 266
+    type: f32_cdab
+    unit: V
+
+  - name: dc_strom_string_2_a
+    address: 268
+    type: f32_cdab
+    unit: A
+
+  - name: dc_leistung_string_2_w
+    address: 270
+    type: f32_cdab
+    unit: W
+
+  - name: dc_spannung_string_2_v
+    address: 276
+    type: f32_cdab
+    unit: V
+
+  - name: dc_strom_string_3_a
+    address: 278
+    type: f32_cdab
+    unit: A
+
+  - name: dc_leistung_string_3_w
+    address: 280
+    type: f32_cdab
+    unit: W
+
+  - name: dc_spannung_string_3_v
+    address: 286
+    type: f32_cdab
+    unit: V
+
+  - name: dc_pv_energie_gesamt_wh
+    address: 1056
+    type: f32_cdab
+    unit: Wh
+
+  - name: dc_leistung_pv_alternativ_w
+    address: 1066
+    type: f32_cdab
+    unit: W
+
+  # --- AC-Erträge ---
   - name: gesamtertrag_wh
     address: 320
     type: f32_cdab
@@ -730,7 +1019,12 @@ flat_registers:
     type: f32_cdab
     unit: Wh
 
-  - name: batterie_soc_prozent_int
-    address: 514
-    type: u16
-    unit: "%"
+  - name: jahresertrag_wh
+    address: 324
+    type: f32_cdab
+    unit: Wh
+
+  - name: monatsertrag_wh
+    address: 326
+    type: f32_cdab
+    unit: Wh

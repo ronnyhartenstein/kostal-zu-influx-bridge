@@ -38,9 +38,12 @@ class FlatCollector:
                 if not name:
                     continue
 
+                enum_map = reg.get("enum_map", {})
                 offset = address - batch_address
                 try:
                     value = decode_typed(raw, offset, dtype)
+                    if isinstance(enum_map, dict) and enum_map:
+                        value = enum_map.get(str(value), value)
                     points.append(DecodedPoint(
                         model="flat",
                         point=sanitize_topic_part(str(name)),
