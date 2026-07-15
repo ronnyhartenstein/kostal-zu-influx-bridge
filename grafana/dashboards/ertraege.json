@@ -196,14 +196,14 @@
       "targets": [
         {
           "datasource": "kostal-influxdb",
-          "query": "SELECT mean(\"value\") AS \"String 1\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'dc_leistung_string_1_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"value\") AS \"String 1\" FROM \"autogen\".\"kostal_plenticore\", \"rp_1min\".\"kostal_plenticore\", \"rp_5min\".\"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'dc_leistung_string_1_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
           "refId": "A",
           "rawQuery": true,
           "resultFormat": "time_series"
         },
         {
           "datasource": "kostal-influxdb",
-          "query": "SELECT mean(\"value\") AS \"String 2\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'dc_leistung_string_2_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"value\") AS \"String 2\" FROM \"autogen\".\"kostal_plenticore\", \"rp_1min\".\"kostal_plenticore\", \"rp_5min\".\"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'dc_leistung_string_2_w') AND $timeFilter GROUP BY time($__interval) fill(null)",
           "refId": "B",
           "rawQuery": true,
           "resultFormat": "time_series"
@@ -238,14 +238,14 @@
       "targets": [
         {
           "datasource": "kostal-influxdb",
-          "query": "SELECT mean(\"value\") AS \"Platine\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'platinen_temperatur_c') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"value\") AS \"Platine\" FROM \"autogen\".\"kostal_plenticore\", \"rp_1min\".\"kostal_plenticore\", \"rp_5min\".\"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'platinen_temperatur_c') AND $timeFilter GROUP BY time($__interval) fill(null)",
           "refId": "A",
           "rawQuery": true,
           "resultFormat": "time_series"
         },
         {
           "datasource": "kostal-influxdb",
-          "query": "SELECT mean(\"value\") AS \"Batterie\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'batterie_temperatur_c') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"value\") AS \"Batterie\" FROM \"autogen\".\"kostal_plenticore\", \"rp_1min\".\"kostal_plenticore\", \"rp_5min\".\"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'batterie_temperatur_c') AND $timeFilter GROUP BY time($__interval) fill(null)",
           "refId": "B",
           "rawQuery": true,
           "resultFormat": "time_series"
@@ -271,7 +271,7 @@
       "targets": [
         {
           "datasource": "kostal-influxdb",
-          "query": "SELECT mean(\"value\") AS \"Strom\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'batterie_strom_a') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"value\") AS \"Strom\" FROM \"autogen\".\"kostal_plenticore\", \"rp_1min\".\"kostal_plenticore\", \"rp_5min\".\"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'batterie_strom_a') AND $timeFilter GROUP BY time($__interval) fill(null)",
           "refId": "A",
           "rawQuery": true,
           "resultFormat": "time_series"
@@ -297,7 +297,7 @@
       "targets": [
         {
           "datasource": "kostal-influxdb",
-          "query": "SELECT mean(\"value\") AS \"Tagesertrag\" FROM \"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'tagesertrag_wh') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"value\") AS \"Tagesertrag\" FROM \"autogen\".\"kostal_plenticore\", \"rp_1min\".\"kostal_plenticore\", \"rp_5min\".\"kostal_plenticore\" WHERE (\"model\" = 'flat' AND \"point\" = 'tagesertrag_wh') AND $timeFilter GROUP BY time($__interval) fill(null)",
           "refId": "A",
           "rawQuery": true,
           "resultFormat": "time_series"

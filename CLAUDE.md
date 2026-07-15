@@ -69,6 +69,26 @@ docker compose exec -T mosquitto sh -c \
 Tags pro Messung: `source` (Hostname), `model` (`m<id>`), `point` (Feldname), `unit` (optional)
 Measurement-Name: `INFLUX_MEASUREMENT` (Default: `kostal_plenticore`)
 
+## Retention & Downsampling
+
+Die Bridge schreibt ohne RP-Angabe immer in die Default-RP `autogen`. Drei Retention Policies + zwei Continuous Queries (eingerichtet via `influxdb/init/001-retention-downsampling.sh`) verdichten die Historie stufenweise:
+
+| RP | Auflösung | Aufbewahrung | Quelle |
+|---|---|---|---|
+| `autogen` (Default) | roh (`POLL_INTERVAL`) | 1 Tag | Bridge-Writes |
+| `rp_1min` | 1-Min-Mittelwert | 7 Tage | CQ `cq_1min` aus `autogen` |
+| `rp_5min` | 5-Min-Mittelwert | unbegrenzt | CQ `cq_5min` aus `rp_1min` |
+
+Numerische Felder (`value`, `value_int`) werden per `mean()` verdichtet, `value_bool`/`value_str` per `last()`. Grafana-Zeitreihen-Panels lesen deshalb per Comma-`FROM` über alle drei RPs (`"autogen"."<measurement>", "rp_1min"."<measurement>", "rp_5min"."<measurement>"`), damit ältere Zeiträume weiterhin Daten zeigen.
+
+Das Init-Skript läuft bei einem **frischen** InfluxDB-Volume automatisch (`docker-entrypoint-initdb.d`). Bei einem bereits bestehenden Volume einmalig manuell nachziehen:
+
+```bash
+docker compose cp influxdb/init/001-retention-downsampling.sh influxdb:/tmp/bootstrap.sh
+docker compose exec influxdb sh /tmp/bootstrap.sh
+docker compose exec -T influxdb influx -username "kostal" -password "kostalpass" -database "kostal" -execute "SHOW RETENTION POLICIES ON kostal"
+```
+
 ## MQTT-Schema
 
 Topic: `${MQTT_TOPIC_PREFIX}/m<model>/<point>`

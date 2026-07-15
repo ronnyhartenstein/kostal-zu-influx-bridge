@@ -10,10 +10,12 @@ services:
       INFLUXDB_ADMIN_PASSWORD: ${INFLUX_PASS}
       INFLUXDB_USER: ${INFLUX_USER}
       INFLUXDB_USER_PASSWORD: ${INFLUX_PASS}
+      INFLUX_MEASUREMENT: ${INFLUX_MEASUREMENT}
     ports:
       - "${INFLUX_PORT:-8086}:8086"
     volumes:
       - influxdb_data:/var/lib/influxdb
+      - ./influxdb/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "influx -host 127.0.0.1 -port 8086 -username $$INFLUXDB_ADMIN_USER -password $$INFLUXDB_ADMIN_PASSWORD -execute 'SHOW DATABASES' >/dev/null 2>&1"]
       interval: 15s
