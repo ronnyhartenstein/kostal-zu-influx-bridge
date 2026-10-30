@@ -19,7 +19,7 @@ app/requirements.txt     # influxdb, paho-mqtt, pymodbus, PyYAML
 app/Dockerfile
 spec/                    # Sollzustand: Architektur, Datenmodell, Legacy-Sink, Betrieb
 config/registers.yml     # Semantisches Register-Mapping (einzige Exportquelle)
-docker-compose.yml       # Bridge + InfluxDB 1.8 + Mosquitto
+docker-compose.yml       # Bridge + InfluxDB 1.8 + Mosquitto + Grafana + Web
 .env / .env.example      # Alle Konfigurationsparameter
 mosquitto/config/        # Broker-Basisconfig
 ```
@@ -53,14 +53,15 @@ docker compose build kostal-bridge
 docker compose run --rm --no-deps -v "$PWD/app:/app" kostal-bridge python -m unittest discover -s tests
 ```
 
-## Kernarchitektur (`app/main.py`)
+## Kernarchitektur
 
-`KostalBridge` läuft in einer Endlosschleife (`run()`):
-1. `_ensure_modbus()` — verbindet/reconnectet bei Verbindungsverlust
-2. `_discover_sunspec()` — findet SunSpec-Basis-Adresse (gecacht bis Reconnect)
-3. `_collect_points()` — liest alle konfigurierten Modelle aus
-4. `_write_influx()` + `_publish_mqtt()` — schreibt Ergebnisse
-5. `_touch_heartbeat()` — `/tmp/bridge_heartbeat` für Docker-Healthcheck
+`main()` läuft in einer Endlosschleife:
+1. `ModbusConnection.ensure()` — verbindet/reconnectet bei Verbindungsverlust, bei neuer Verbindung `SunSpecCollector.invalidate()`
+2. `SunSpecCollector.collect()` + `FlatCollector.collect()` — liest die Modelle und `flat_registers` aus; die SunSpec-Basis-Adresse bleibt bis zum Reconnect gecacht
+3. `InfluxSink.write()` — schreibt nach `INFLUX_DB`
+4. `_write_legacy()` — optionaler Legacy-Sink, Fehler werden nur geloggt
+5. `MqttSink.publish()` — publiziert per MQTT
+6. `_touch_heartbeat()` — `/tmp/bridge_heartbeat` für Docker-Healthcheck
 
 **Wichtige Implementierungsdetails:**
 - Fallback-Host: `MODBUS_HOST_FALLBACK` wird nach Primary versucht
@@ -78,7 +79,7 @@ docker compose run --rm --no-deps -v "$PWD/app:/app" kostal-bridge python -m uni
 | `str` | `value_str` |
 | `float` (inf/nan) | wird übersprungen |
 
-Tags pro Messung: `source` (Hostname), `model` (`m<id>`), `point` (Feldname), `unit` (optional)
+Tags pro Messung: `source` (Hostname), `model` (`m<id>` oder `flat`), `point` (Feldname), `unit` (optional)
 Measurement-Name: `INFLUX_MEASUREMENT` (Default: `kostal_plenticore`)
 
 ## Retention & Downsampling
@@ -107,7 +108,7 @@ docker compose exec -T influxdb influx -username "kostal" -password "kostalpass"
 
 ## MQTT-Schema
 
-Topic: `${MQTT_TOPIC_PREFIX}/m<model>/<point>`
+Topic: `${MQTT_TOPIC_PREFIX}/<model>/<point>` (`<model>` = `m<id>` oder `flat`)
 
 - Numerische Werte: direkt als String (`"123.4"`)
 - Strings/Sonstige: JSON `{"value": ..., "ts": ..., "unit": ...}`
