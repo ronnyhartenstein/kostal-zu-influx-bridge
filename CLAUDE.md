@@ -10,9 +10,14 @@ Docker-Compose-Stack für Telemetrie eines Kostal Plenticore Wechselrichters:
 ## Projektstruktur
 
 ```
-app/main.py              # Kernlogik (KostalBridge-Klasse)
+app/main.py              # Einstieg und Abfragezyklus
+app/modbus.py, sunspec.py, flat.py, decoders.py  # Quelle und Dekodierung
+app/sinks.py             # InfluxSink, LegacyHausSink, MqttSink
+app/legacy.py            # Zuordnung und Umrechnung für haus.strom
+app/tests/               # Unit-Tests (unittest)
 app/requirements.txt     # influxdb, paho-mqtt, pymodbus, PyYAML
 app/Dockerfile
+spec/                    # Sollzustand: Architektur, Datenmodell, Legacy-Sink, Betrieb
 config/registers.yml     # Semantisches Register-Mapping (einzige Exportquelle)
 docker-compose.yml       # Bridge + InfluxDB 1.8 + Mosquitto
 .env / .env.example      # Alle Konfigurationsparameter
@@ -39,6 +44,13 @@ docker compose exec -T influxdb influx \
 # MQTT
 docker compose exec -T mosquitto sh -c \
   "mosquitto_sub -h localhost -p 1883 -t 'home/kostal/plenticore/#' -C 10 -W 8 -v"
+```
+
+Unit-Tests (ohne Wechselrichter und Influx):
+
+```bash
+docker compose build kostal-bridge
+docker compose run --rm --no-deps -v "$PWD/app:/app" kostal-bridge python -m unittest discover -s tests
 ```
 
 ## Kernarchitektur (`app/main.py`)
@@ -88,6 +100,10 @@ docker compose cp influxdb/init/001-retention-downsampling.sh influxdb:/tmp/boot
 docker compose exec influxdb sh /tmp/bootstrap.sh
 docker compose exec -T influxdb influx -username "kostal" -password "kostalpass" -database "kostal" -execute "SHOW RETENTION POLICIES ON kostal"
 ```
+
+## Legacy-Sink `haus.strom`
+
+Übergangslösung für die NodeRED-Ablösung (docker-mini#44), Standard aus (`LEGACY_HAUS_ENABLED=false`). Schreibt 7 Reihen formatgleich zu NodeRED, bis die Dashboards auf `kostal` umgestellt sind. Fehler im Sink werden nur geloggt und dürfen den Zyklus nicht abbrechen. Details: `spec/legacy-sink.md`.
 
 ## MQTT-Schema
 

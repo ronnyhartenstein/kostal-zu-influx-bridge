@@ -82,6 +82,17 @@ docker compose exec -T mosquitto sh -c \
   "mosquitto_sub -h localhost -p 1883 -t 'home/kostal/plenticore/#' -C 10 -W 8 -v"
 ```
 
+## Legacy-Sink `haus.strom`
+
+Für die Ablösung von NodeRED kann die Bridge die 7 alten Reihen zusätzlich nach `haus.strom` schreiben, bis die Dashboards auf `kostal` umgestellt sind. Standard ist aus, aktiviert wird mit `LEGACY_HAUS_ENABLED=true`. Details stehen in [`spec/legacy-sink.md`](spec/legacy-sink.md).
+
+## Tests
+
+```bash
+docker compose build kostal-bridge
+docker compose run --rm --no-deps -v "$PWD/app:/app" kostal-bridge python -m unittest discover -s tests
+```
+
 ## Betrieb
 
 Stoppen:
