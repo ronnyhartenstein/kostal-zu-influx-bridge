@@ -9,6 +9,7 @@ from influxdb import InfluxDBClient
 from paho.mqtt import client as mqtt
 
 from decoders import DecodedPoint, env_bool, sanitize_topic_part
+from legacy import legacy_values
 
 logger = logging.getLogger("kostal_bridge.sinks")
 
@@ -74,6 +75,45 @@ class InfluxSink:
 
         if body:
             self._client.write_points(body, time_precision="s", batch_size=2000)
+
+
+class LegacyHausSink:
+    def __init__(self) -> None:
+        host = os.getenv("INFLUX_HOST", "influxdb")
+        port = int(os.getenv("INFLUX_PORT", "8086"))
+        db = os.getenv("LEGACY_HAUS_DB", "haus")
+        user = os.getenv("INFLUX_USER", "")
+        password = os.getenv("INFLUX_PASS", "")
+        ssl = env_bool("INFLUX_SSL", False)
+        verify_ssl = env_bool("INFLUX_VERIFY_SSL", True)
+        self.measurement = os.getenv("LEGACY_HAUS_MEASUREMENT", "strom")
+
+        self._client = InfluxDBClient(
+            host=host,
+            port=port,
+            username=user or None,
+            password=password or None,
+            ssl=ssl,
+            verify_ssl=verify_ssl,
+            database=db,
+            timeout=10,
+        )
+        logger.info("Legacy sink enabled: %s:%s/%s.%s", host, port, db, self.measurement)
+
+    def write(self, points: List[DecodedPoint]) -> None:
+        now = datetime.now(timezone.utc).isoformat()
+        body: List[Dict[str, Any]] = [
+            {
+                "measurement": self.measurement,
+                "tags": {"site_name": site_name},
+                "time": now,
+                "fields": {"value": value},
+            }
+            for site_name, value in legacy_values(points).items()
+        ]
+
+        if body:
+            self._client.write_points(body, time_precision="s")
 
 
 class MqttSink:

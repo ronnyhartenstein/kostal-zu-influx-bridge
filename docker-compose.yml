@@ -10,10 +10,12 @@ services:
       INFLUXDB_ADMIN_PASSWORD: ${INFLUX_PASS}
       INFLUXDB_USER: ${INFLUX_USER}
       INFLUXDB_USER_PASSWORD: ${INFLUX_PASS}
+      INFLUX_MEASUREMENT: ${INFLUX_MEASUREMENT}
     ports:
       - "${INFLUX_PORT:-8086}:8086"
     volumes:
       - influxdb_data:/var/lib/influxdb
+      - ./influxdb/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "influx -host 127.0.0.1 -port 8086 -username $$INFLUXDB_ADMIN_USER -password $$INFLUXDB_ADMIN_PASSWORD -execute 'SHOW DATABASES' >/dev/null 2>&1"]
       interval: 15s
@@ -76,5 +78,24 @@ services:
     volumes:
       - ./config:/config:ro
 
+  grafana:
+    image: grafana/grafana:11.6.1
+    container_name: kostal-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/energiefluss.json
+
 volumes:
   influxdb_data:
+  grafana_data:
