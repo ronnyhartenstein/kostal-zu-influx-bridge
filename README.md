@@ -27,10 +27,12 @@ Im aktuellen Live-Test wurden diese Modelle entdeckt:
 - `m1`: Common Model (Geräteinformationen)
 - `m103`: Inverter (3-phasig, AC/DC-Leistungswerte)
 - `m113`: Erweiterte Inverter-Daten (herstellerabhängig)
-- `m120`: Nameplate/Nennwerte
+- `m120`: Nameplate des Wechselrichters, nicht exportiert
 - `m123`: Status-/Control-naher Inverter-Block
 - `m160`: Erweiterte DC-/PV-Kanalwerte
-- `m802`: Kostal-spezifisches (proprietäres) Modell
+- `m802`: SunSpec Battery Base Model
+
+Batteriekapazität: Der WR liefert sie nicht, Details in [`spec/datenmodell.md`](spec/datenmodell.md).
 
 ## Schnellstart
 
@@ -123,17 +125,7 @@ Hinweis:
 
 Priorität für den nächsten Ausbau:
 
-1. `m802` (Kostal proprietär): Batteriespeicher, Hausverbrauch, Netzbezug, Netzeinspeisung, Tagesertrag
-2. `m160`: PV-String/Tracker-Werte als `pv_string_1_spannung_v`, `pv_string_1_strom_a`, `pv_string_1_leistung_w` usw.
-3. `m123` / `m113`: Betriebszustände und Fehlercodes in deutsche Klartext-Statusfelder (inkl. Enum-Mapping)
-4. Status-Topics zusätzlich als menschenlesbare Texte, z. B. `betriebszustand_text`
-5. Semantische Felder mit plausiblen Skalierungs-/Typchecks absichern (Quality Gates)
-
-## TODOs
-
-- [ ] **Energiefluss-Aufschlüsselung in m802 ergänzen:** NodeRED liest über native Register
-  `own_use_from_battery` (Reg 106) und `own_use_from_pv` (Reg 116) als separate Werte.
-  Im aktuellen SunSpec-Mapping fehlen diese — nur `hausverbrauch_gesamt_w` (Summe, Offset 80)
-  ist vorhanden. Die korrekten SunSpec-Offsets für die Aufschlüsselung nach Quelle müssen
-  per Live-Messung oder Kostal-Dokumentation ermittelt und dann als
-  `eigenverbrauch_aus_batterie_w` und `eigenverbrauch_aus_pv_w` in m802 eingetragen werden.
+1. `m160`: PV-String/Tracker-Werte als `pv_string_1_spannung_v`, `pv_string_1_strom_a`, `pv_string_1_leistung_w` usw.
+2. `m123` / `m113`: Betriebszustände und Fehlercodes in deutsche Klartext-Statusfelder (inkl. Enum-Mapping)
+3. Status-Topics zusätzlich als menschenlesbare Texte, z. B. `betriebszustand_text`
+4. Semantische Felder mit plausiblen Skalierungs-/Typchecks absichern (Quality Gates)

@@ -1,5 +1,15 @@
 # Betrieb
 
+## Anlage
+
+| Gerät | Daten |
+|---|---|
+| Wechselrichter | Kostal PLENTICORE plus 8.5, Artikelnummer 10335958, HW 0200 |
+| WR-Firmware | UI 01.30.12092, MC 01.80, IOC 01.80, Richtlinie DE VDE4105 cosphi=1 |
+| Batterie | BYD Battery-Box Premium HVM: 1× BCU HVS/HVM-BCL, 4× Modul HVM-2.76 (Aufdruck „II“) |
+
+Die Firmware ist relevant für die Wortreihenfolge der `U32`-Register, siehe [`datenmodell.md`](datenmodell.md).
+
 ## Konfiguration
 
 Alle Parameter kommen aus der Umgebung, Vorlage ist `.env.example`. Im Repo-Stack reicht `kostal-bridge` die `.env`
