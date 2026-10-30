@@ -17,14 +17,15 @@ der Scale Factor −2. Für `flat_registers` gelten die Marker nicht.
 ## Batterie
 
 Verbaut ist eine BYD HVM mit 4 Modulen zu je 2,76 kWh, also 11,04 kWh Nennenergie und 64 Zellen in Reihe.
-Der WR liefert die reale Kapazität nicht. Für Energieinhalte gilt der Wert von rund 9,5 kWh, er stammt nicht aus einem
-Register.
+Der WR liefert die nutzbare Kapazität nicht. Für Energieinhalte gilt netto 9,5 kWh: 10 kWh abzüglich 5 % Restkapazität,
+unter die nicht entladen wird. Mehr war laut Betreiber nie nutzbar, die 9,5 kWh sind also kein Alterungswert. Die Differenz
+zur Nennenergie von 11,04 kWh ist vermutlich eine Reserve, etwa für Zellausfälle; das ist nicht belegt.
 
 | Quelle | Wert | Einordnung |
 |---|---|---|
 | Register 1068, 529, `m802` Offset 1 | 12614 Wh | Rechenwert: 54 Ah Nennladung × 233,6 V (64 × 3,65 V Ladeschluss), nicht exportiert |
 | Register 512, `m802` Offset 0 | 49 Ah | `batterie_bruttokapazitaet_ah`; Herkunft im BMS unbelegt, keine Energieangabe |
-| 49 Ah × 207 V (mittlere Entladespannung) | ca. 10,1 kWh | nur Abschätzung |
+| 49 Ah × 204,8 V (64 × 3,2 V Nennspannung) | ca. 10,0 kWh | passt zu den 10 kWh, Zusammenhang nur rechnerisch |
 | Register 1046/1048 je SoC-Hub | Median 9,6 kWh | gemessen über 15 Lade- und Entladephasen ab 20 % Hub, 23.–30.10.2026, Spanne 7,0–11,2 kWh |
 
 `m120` ist laut SunSpec das Nameplate-Modell des Wechselrichters (`VARtg` = 8500 VA). `WHRtg` und `AhrRtg` stehen dort
