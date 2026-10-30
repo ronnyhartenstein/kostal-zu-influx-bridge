@@ -1,7 +1,7 @@
 import struct
 import unittest
 
-from decoders import cdab_u32, decode_i16, decode_string, decode_typed, sanitize_topic_part
+from decoders import cdab_u32, decode_i16, decode_string, decode_typed, is_not_implemented, sanitize_topic_part
 
 
 def cdab_regs(raw):
@@ -21,6 +21,23 @@ class DecodeTypedTest(unittest.TestCase):
         regs = cdab_regs(0xFFFFFFFE)
         self.assertEqual(decode_typed(regs, 0, "u32_cdab"), 0xFFFFFFFE)
         self.assertEqual(decode_typed(regs, 0, "i32_cdab"), -2)
+
+    def test_u32_abcd_puts_high_word_first(self):
+        self.assertEqual(decode_typed([0x0000, 0x0031], 0, "u32_abcd"), 49)
+        with self.assertRaises(IndexError):
+            decode_typed([0x0031], 0, "u32_abcd")
+
+    def test_not_implemented_markers(self):
+        self.assertTrue(is_not_implemented(0xFFFF, "u16"))
+        self.assertTrue(is_not_implemented(-0x8000, "i16"))
+        self.assertTrue(is_not_implemented(0xFFFFFFFF, "u32_abcd"))
+        self.assertTrue(is_not_implemented(-0x80000000, "i32_cdab"))
+
+    def test_real_values_are_no_markers(self):
+        self.assertFalse(is_not_implemented(65534, "u16"))
+        self.assertFalse(is_not_implemented(-2, "i16"))
+        self.assertFalse(is_not_implemented(0xFFFF, "u32_abcd"))
+        self.assertFalse(is_not_implemented(float("nan"), "f32_cdab"))
 
     def test_f32_keeps_sign(self):
         raw = struct.unpack(">I", struct.pack(">f", -1234.5))[0]

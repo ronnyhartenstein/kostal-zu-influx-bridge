@@ -66,7 +66,7 @@ docker compose run --rm --no-deps -v "$PWD/app:/app" kostal-bridge python -m uni
 **Wichtige Implementierungsdetails:**
 - Fallback-Host: `MODBUS_HOST_FALLBACK` wird nach Primary versucht
 - SunSpec-Suche: Kandidaten `[40000, 39999, 50000, 0]`; Marker `0x5375, 0x6E53` ("SunS")
-- Word-Order für 32-bit: **CDAB** (`cdab_u32()` — bytes C,D,A,B)
+- Word-Order für 32-bit: **CDAB** (`cdab_u32()` — bytes C,D,A,B); `U32` im Block ab 512 und in SunSpec-Modellen: `u32_abcd`
 - Exportpolicy: **Nur** in `config/registers.yml` definierte Punkte werden publiziert
 
 ## InfluxDB-Feldschema
@@ -121,7 +121,7 @@ models:
     points:
       - name: ac_wirkleistung_gesamt_w   # snake_case, Einheitssuffix
         offset: 0                         # Register-Offset im Datenblock
-        type: i16                         # u16 | i16 | u32_cdab | i32_cdab | f32_cdab | string
+        type: i16                         # u16 | i16 | u32_cdab | u32_abcd | i32_cdab | f32_cdab | string
         scale_from: 13                    # optional: Offset des SF-Registers (10^SF)
         unit: W                           # optional
         enum_map:                         # optional: {str(value): label}
@@ -130,7 +130,9 @@ models:
 ```
 
 **Bekannte SunSpec-Modelle am Kostal Plenticore:**
-`m1` (Common), `m103` (AC Inverter 3-ph), `m113` (Float-Inverter), `m120` (Nameplate), `m123` (Control), `m160` (DC-Strings), `m802` (Kostal proprietär)
+`m1` (Common), `m103` (AC Inverter 3-ph), `m113` (Float-Inverter), `m120` (Nameplate des WR, nicht exportiert), `m123` (Control), `m160` (DC-Strings), `m802` (SunSpec Battery Base Model)
+
+**Batteriekapazität:** Der WR liefert sie nicht, Register 1068 ist ein Rechenwert. Siehe `spec/datenmodell.md`.
 
 ## Entwicklungsprinzipien
 

@@ -55,6 +55,16 @@ class FlatCollectorTest(unittest.TestCase):
         self.assertEqual((point.model, point.point, point.value, point.unit),
                          ("flat", "netzleistung_gesamt_w", -250.5, "W"))
 
+    def test_gross_capacity_register_has_high_word_first(self):
+        modbus = FakeModbus({512: 0x0000, 513: 0x0031, 514: 53})
+        regs = [
+            {"name": "batterie_bruttokapazitaet_ah", "address": 512, "type": "u32_abcd", "unit": "Ah"},
+            {"name": "batterie_soc_prozent_int", "address": 514, "type": "u16"},
+        ]
+        points = FlatCollector(modbus, regs).collect()
+        self.assertEqual(modbus.reads, [(512, 3)])
+        self.assertEqual([p.value for p in points], [49, 53])
+
     def test_enum_map(self):
         regs = [{"name": "status", "address": 56, "type": "u16", "enum_map": {"6": "Einspeisen"}}]
         point = FlatCollector(FakeModbus({56: 6}), regs).collect()[0]
