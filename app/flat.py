@@ -7,6 +7,7 @@ from modbus import ModbusConnection
 logger = logging.getLogger("kostal_bridge.flat")
 
 _MAX_BATCH = 50
+_TWO_REGISTER_TYPES = {"f32_cdab", "u32_cdab", "i32_cdab", "u32_abcd"}
 
 
 class FlatCollector:
@@ -64,9 +65,9 @@ class FlatCollector:
             j = i + 1
             while j < len(regs_sorted):
                 addr = int(regs_sorted[j]["address"])
-                reg_width = 2 if regs_sorted[j].get("type", "f32_cdab") in {"f32_cdab", "u32_cdab", "i32_cdab"} else 1
+                reg_width = 2 if regs_sorted[j].get("type", "f32_cdab") in _TWO_REGISTER_TYPES else 1
                 end_of_current = int(regs_sorted[j - 1]["address"]) + (
-                    2 if regs_sorted[j - 1].get("type", "f32_cdab") in {"f32_cdab", "u32_cdab", "i32_cdab"} else 1
+                    2 if regs_sorted[j - 1].get("type", "f32_cdab") in _TWO_REGISTER_TYPES else 1
                 )
                 if addr <= end_of_current + 4 and (addr + reg_width - batch_start) <= _MAX_BATCH:
                     batch_regs.append(regs_sorted[j])
@@ -76,7 +77,7 @@ class FlatCollector:
 
             last = batch_regs[-1]
             last_addr = int(last["address"])
-            last_width = 2 if last.get("type", "f32_cdab") in {"f32_cdab", "u32_cdab", "i32_cdab"} else 1
+            last_width = 2 if last.get("type", "f32_cdab") in _TWO_REGISTER_TYPES else 1
             batch_count = last_addr + last_width - batch_start
 
             batches.append((batch_start, batch_count, batch_regs))

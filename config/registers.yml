@@ -189,95 +189,6 @@ models:
         type: f32_cdab
         unit: Hz
 
-  "120":
-    points:
-      - name: batterie_modell_id
-        offset: 0
-        type: u32_cdab
-
-      - name: batterie_seriennummer
-        offset: 2
-        type: u32_cdab
-
-      - name: nennkapazitaet_wh
-        offset: 4
-        type: u32_cdab
-        scale_from: 8
-        unit: Wh
-
-      - name: maximale_ladeleistung_w
-        offset: 6
-        type: u16
-        scale_from: 8
-        unit: W
-
-      - name: maximale_entladeleistung_w
-        offset: 7
-        type: u16
-        scale_from: 8
-        unit: W
-
-      - name: skalierungsfaktor_leistung
-        offset: 8
-        type: i16
-
-      - name: batterietyp
-        offset: 9
-        type: u16
-        enum_map:
-          "0": "Kein Speicher"
-          "2": "Sony"
-          "4": "BYD"
-
-      - name: batteriezustand_status
-        offset: 10
-        type: u16
-
-      - name: batterie_ladezustand_soc_prozent
-        offset: 11
-        type: u16
-        unit: "%"
-
-      - name: batteriespannung_v
-        offset: 12
-        type: u16
-        scale_from: 15
-        unit: V
-
-      - name: batteriestrom_a
-        offset: 13
-        type: i16
-        scale_from: 16
-        unit: A
-
-      - name: batterietemperatur_c
-        offset: 14
-        type: i16
-        scale_from: 17
-        unit: C
-
-      - name: skalierungsfaktor_spannung
-        offset: 15
-        type: i16
-
-      - name: skalierungsfaktor_strom
-        offset: 16
-        type: i16
-
-      - name: skalierungsfaktor_temperatur
-        offset: 17
-        type: i16
-
-      - name: aktuelle_lade_entladeleistung_w
-        offset: 18
-        type: i16
-        scale_from: 19
-        unit: W
-
-      - name: skalierungsfaktor_aktuelle_leistung
-        offset: 19
-        type: i16
-
   "123":
     points:
       - name: steuerungsmodus
@@ -367,301 +278,36 @@ models:
         type: i16
 
   "802":
+    # SunSpec Battery Base Model. Scale Factors liegen in den Offsets 50-61.
+    # Nicht exportiert: AHRtg und WHRtg (Offsets 0, 1), sie doppeln Register 512 und 1068, siehe spec/datenmodell.md.
+    # SoH und DoD (Offsets 10, 11) belegt der WR nicht, sie stehen konstant auf 0.
     points:
-      - name: produktname
-        offset: 0
-        type: string
-        length: 32
-
-      - name: leistungsklasse_w
-        offset: 16
-        type: u16
-        unit: W
-
-      - name: nennleistung_ac_w
-        offset: 17
-        type: u16
-        unit: W
-
-      - name: maximale_ac_leistung_w
-        offset: 18
-        type: u16
-        unit: W
-
-      - name: maximale_dc_leistung_w
-        offset: 19
-        type: u16
-        unit: W
-
-      - name: maximale_dc_spannung_v
-        offset: 20
-        type: u16
-        unit: V
-
-      - name: maximale_dc_stromstaerke_a
-        offset: 21
-        type: u16
-        unit: A
-
-      - name: anzahl_mppt_eingaenge
-        offset: 22
-        type: u16
-
-      - name: anzahl_phasen
-        offset: 23
-        type: u16
-
-      - name: wirkungsgrad_prozent
-        offset: 24
-        type: u16
-        unit: "%"
-
-      - name: eigenverbrauch_standby_w
-        offset: 25
-        type: u16
-        unit: W
-
-      - name: batterie_vorhanden
-        offset: 26
-        type: u16
-        enum_map:
-          "0": "Nein"
-          "1": "Ja"
-
-      - name: smart_energy_meter_vorhanden
-        offset: 27
-        type: u16
-        enum_map:
-          "0": "Nein"
-          "1": "Ja"
-
-      - name: firmware_version_haupt
-        offset: 28
-        type: u32_cdab
-
-      - name: firmware_version_dsp
-        offset: 30
-        type: u32_cdab
-
-      - name: hardware_version
-        offset: 32
-        type: string
-        length: 16
-
-      - name: ioc_version
-        offset: 40
-        type: string
-        length: 16
-
-      - name: gesamtertrag_lebensdauer_wh
-        offset: 48
-        type: u32_cdab
-        scale_from: 53
-        unit: Wh
-
-      - name: tagesertrag_wh
-        offset: 50
-        type: u32_cdab
-        scale_from: 53
-        unit: Wh
-
-      - name: gesamtbetriebsstunden_h
-        offset: 52
-        type: u32_cdab
-        unit: h
-
-      - name: aktuelle_ac_leistung_gesamt_w
-        offset: 54
-        type: i16
-        scale_from: 55
-        unit: W
-
-      - name: skalierungsfaktor_ac_leistung
-        offset: 55
-        type: i16
-
-      - name: aktuelle_dc_leistung_gesamt_w
-        offset: 56
-        type: i16
-        scale_from: 57
-        unit: W
-
-      - name: skalierungsfaktor_dc_leistung
-        offset: 57
-        type: i16
-
-      - name: ac_spannung_phase_l1_v
-        offset: 58
-        type: u16
-        unit: V
-
-      - name: ac_spannung_phase_l2_v
-        offset: 59
-        type: u16
-        unit: V
-
-      - name: ac_spannung_phase_l3_v
-        offset: 60
-        type: u16
-        unit: V
-
-      - name: ac_strom_phase_l1_a
-        offset: 61
-        type: u16
-        unit: A
-
-      - name: ac_strom_phase_l2_a
-        offset: 62
-        type: u16
-        unit: A
-
-      - name: ac_strom_phase_l3_a
-        offset: 63
-        type: u16
-        unit: A
-
-      - name: netzfrequenz_hz
-        offset: 64
-        type: u16
-        unit: Hz
-
-      - name: wechselrichter_temperatur_c
-        offset: 65
-        type: i16
-        unit: C
-
-      - name: wechselrichter_status
-        offset: 66
-        type: u16
-        enum_map:
-          "0": "Aus"
-          "1": "Init"
-          "2": "IsoMess"
-          "3": "NetzPruefung"
-          "4": "Anlauf"
-          "6": "Einspeisung"
-          "7": "Gedrosselt"
-          "8": "ExtAbschaltung"
-          "9": "Update"
-          "10": "Standby"
-          "11": "NetzSync"
-          "12": "NetzVorpruefung"
-          "13": "NetzAbschaltung"
-          "14": "Ueberhitzung"
-          "15": "Shutdown"
-          "16": "DC-Spannungsfehler"
-
-      - name: fehlercode
-        offset: 67
-        type: u32_cdab
-
       - name: batterie_ladezustand_soc_prozent
-        offset: 69
+        offset: 9
         type: u16
+        scale_from: 54
         unit: "%"
+
+      - name: batterie_zyklenanzahl
+        offset: 12
+        type: u32_abcd
 
       - name: batteriespannung_v
-        offset: 70
+        offset: 32
         type: u16
+        scale_from: 57
         unit: V
 
       - name: batteriestrom_a
-        offset: 71
+        offset: 42
         type: i16
+        scale_from: 59
         unit: A
 
       - name: batterie_lade_entladeleistung_w
-        offset: 72
+        offset: 45
         type: i16
-        unit: W
-
-      - name: batterietemperatur_c
-        offset: 73
-        type: i16
-        unit: C
-
-      - name: batterie_zyklenanzahl
-        offset: 74
-        type: u32_cdab
-
-      - name: batterie_gesamtkapazitaet_wh
-        offset: 76
-        type: u32_cdab
-        unit: Wh
-
-      - name: batterie_nutzbare_kapazitaet_wh
-        offset: 78
-        type: u32_cdab
-        unit: Wh
-
-      - name: hausverbrauch_gesamt_w
-        offset: 80
-        type: i16
-        unit: W
-
-      - name: netzleistung_w
-        offset: 81
-        type: i16
-        unit: W
-
-      - name: eigenverbrauchsquote_prozent
-        offset: 82
-        type: u16
-        unit: "%"
-
-      - name: autarkiegrad_prozent
-        offset: 83
-        type: u16
-        unit: "%"
-
-      - name: co2_ersparnis_kg
-        offset: 84
-        type: u32_cdab
-        unit: kg
-
-      - name: dc_spannung_string_1_v
-        offset: 86
-        type: u16
-        unit: V
-
-      - name: dc_strom_string_1_a
-        offset: 87
-        type: u16
-        unit: A
-
-      - name: dc_leistung_string_1_w
-        offset: 88
-        type: u16
-        unit: W
-
-      - name: dc_spannung_string_2_v
-        offset: 89
-        type: u16
-        unit: V
-
-      - name: dc_strom_string_2_a
-        offset: 90
-        type: u16
-        unit: A
-
-      - name: dc_leistung_string_2_w
-        offset: 91
-        type: u16
-        unit: W
-
-      - name: dc_spannung_string_3_v
-        offset: 92
-        type: u16
-        unit: V
-
-      - name: dc_strom_string_3_a
-        offset: 93
-        type: u16
-        unit: A
-
-      - name: dc_leistung_string_3_w
-        offset: 94
-        type: u16
+        scale_from: 61
         unit: W
 
 flat_registers:
@@ -861,9 +507,10 @@ flat_registers:
     type: f32_cdab
     unit: V
 
+  # Der Block ab 512 liefert U32 trotz CDAB-Einstellung mit High-Word zuerst.
   - name: batterie_bruttokapazitaet_ah
     address: 512
-    type: u32_cdab
+    type: u32_abcd
     unit: Ah
 
   - name: batterie_soc_prozent_int
@@ -883,11 +530,6 @@ flat_registers:
 
   - name: batterie_entladeenergie_gesamt_wh
     address: 1048
-    type: f32_cdab
-    unit: Wh
-
-  - name: batterie_nutzbare_kapazitaet_wh
-    address: 1068
     type: f32_cdab
     unit: Wh
 

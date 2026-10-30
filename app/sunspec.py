@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 
-from decoders import DecodedPoint, decode_i16, decode_string, decode_typed, sanitize_topic_part
+from decoders import DecodedPoint, decode_i16, decode_string, decode_typed, is_not_implemented, sanitize_topic_part
 from modbus import ModbusConnection
 
 logger = logging.getLogger("kostal_bridge.sunspec")
@@ -99,10 +99,16 @@ class SunSpecCollector:
                 else:
                     value = decode_typed(regs=regs, offset=int(offset), dtype=dtype_value)
 
+                if is_not_implemented(value, dtype_value):
+                    logger.debug("Skipping unimplemented point model=%s name=%s", model_id, name)
+                    continue
+
                 if scale_from is not None and isinstance(value, (int, float)):
                     sf = decode_i16(regs, int(scale_from))
-                    if sf != -32768:
-                        value = float(value) * (10 ** sf)
+                    if sf == -32768:
+                        logger.debug("Skipping point without scale factor model=%s name=%s", model_id, name)
+                        continue
+                    value = float(value) * (10 ** sf)
 
                 if isinstance(enum_map, dict):
                     value = enum_map.get(str(value), value)
