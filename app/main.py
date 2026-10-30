@@ -1,12 +1,14 @@
 import logging
 import os
 import time
+from typing import List, Optional
 
 import yaml
 
+from decoders import DecodedPoint, env_bool
 from flat import FlatCollector
 from modbus import ModbusConnection
-from sinks import InfluxSink, MqttSink
+from sinks import InfluxSink, LegacyHausSink, MqttSink
 from sunspec import SunSpecCollector
 
 
@@ -25,6 +27,15 @@ def _load_config(path: str) -> dict:
 def _touch_heartbeat() -> None:
     with open("/tmp/bridge_heartbeat", "w", encoding="utf-8") as f:
         f.write(str(time.time()))
+
+
+def _write_legacy(legacy: Optional[LegacyHausSink], points: List[DecodedPoint]) -> None:
+    if legacy is None:
+        return
+    try:
+        legacy.write(points)
+    except Exception as exc:
+        logging.getLogger("kostal_bridge").warning("Legacy write failed: %s", exc)
 
 
 def main() -> None:
@@ -56,6 +67,7 @@ def main() -> None:
     flat = FlatCollector(modbus, config.get("flat_registers", []))
     influx = InfluxSink()
     mqtt = MqttSink()
+    legacy = LegacyHausSink() if env_bool("LEGACY_HAUS_ENABLED", False) else None
 
     while True:
         start = time.time()
@@ -64,6 +76,7 @@ def main() -> None:
                 sunspec.invalidate()
             points = sunspec.collect() + flat.collect()
             influx.write(points, source=modbus.active_host or "unknown")
+            _write_legacy(legacy, points)
             mqtt.publish(points)
             _touch_heartbeat()
             logger.info("Cycle done: %d points via %s", len(points), modbus.active_host)
