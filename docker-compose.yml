@@ -78,6 +78,21 @@ services:
     volumes:
       - ./config:/config:ro
 
+  kostal-mcp:
+    build:
+      context: ./mcp
+    container_name: kostal-mcp
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${MCP_PORT:-8090}:8000"
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    volumes:
+      - ./config:/config:ro
+
   grafana:
     image: grafana/grafana:11.6.1
     container_name: kostal-grafana
