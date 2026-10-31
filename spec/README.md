@@ -9,6 +9,7 @@ Wird eine Schnittstelle geändert, wird die Spec im selben Commit nachgezogen.
 | [`datenmodell.md`](datenmodell.md) | Influx- und MQTT-Schema, Retention, Registermapping |
 | [`legacy-sink.md`](legacy-sink.md) | Übergangs-Sink nach `haus.strom` |
 | [`betrieb.md`](betrieb.md) | Konfiguration, Tests, Abgrenzung zu `docker-mini` |
+| [`mcp.md`](mcp.md) | Read-only MCP-Server für Analysen |
 
 ## Grundsätze
 

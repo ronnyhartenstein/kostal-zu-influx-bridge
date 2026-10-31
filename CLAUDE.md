@@ -17,9 +17,10 @@ app/legacy.py            # Zuordnung und Umrechnung für haus.strom
 app/tests/               # Unit-Tests (unittest)
 app/requirements.txt     # influxdb, paho-mqtt, pymodbus, PyYAML
 app/Dockerfile
+mcp/                     # Read-only MCP-Server auf die Influx-Daten, siehe spec/mcp.md
 spec/                    # Sollzustand: Architektur, Datenmodell, Legacy-Sink, Betrieb
 config/registers.yml     # Semantisches Register-Mapping (einzige Exportquelle)
-docker-compose.yml       # Bridge + InfluxDB 1.8 + Mosquitto + Grafana + Web
+docker-compose.yml       # Bridge + InfluxDB 1.8 + Mosquitto + Grafana + Web + MCP
 .env / .env.example      # Alle Konfigurationsparameter
 mosquitto/config/        # Broker-Basisconfig
 ```
@@ -51,6 +52,13 @@ Unit-Tests (ohne Wechselrichter und Influx):
 ```bash
 docker compose build kostal-bridge
 docker compose run --rm --no-deps -v "$PWD/app:/app" kostal-bridge python -m unittest discover -s tests
+```
+
+MCP-Server-Tests (ohne Influx):
+
+```bash
+docker compose build kostal-mcp
+docker compose run --rm --no-deps -v "$PWD/mcp:/app" -e PYTHONPATH=/app kostal-mcp python -m unittest discover -s tests
 ```
 
 ## Kernarchitektur
